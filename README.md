@@ -26,7 +26,7 @@ and 'leaves' to create different triggers based on 'branch':
 ```
 Since Ansible supports jinja2 expressions, you can also customize every parameter as you want to.
 
-# Change trigger parameteres
+# Change trigger parameters
 Use 'gardening' to change trigger's tags:
 ```
      gardening:
