@@ -33,19 +33,19 @@ Use 'gardening' to change trigger's tags:
        change:
          third_tag: second_tag
 ```
-and purging unusual tags left after removed triggers:
+and purge unusual tags left after removed triggers:
 ```
      gardening:
        cleanup: True
 ```
 
 # Delete triggers
-To remove instance from monitoring it's enough to specify its target inside 'fall':
+To remove instance from monitoring it's enough to specify its targets inside the 'fall':
 ```
      fall:
        target_0: target_30.rps
        target_1: target_31.rps
 ```
-after procedure of targets removal, module function finds and removes triggers with no targets left.
+After procedure of targets removal, function finds and removes triggers with no targets left.
 
 Feel free to use only 'branch/leaves' or only 'fall' or only 'gardening' inside one task.
