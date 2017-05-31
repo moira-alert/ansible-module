@@ -10,7 +10,7 @@ Parameters values required to be specified:
  - name: Trigger name;
  - targets: List of trigger targets.
  
-Any others will be used with default value.
+Any others will be used with their default values.
 ```
    - name: MoiraAnsible
      moira_trigger:
@@ -37,7 +37,7 @@ Any others will be used with default value.
 
 ```
 Note: Since its name required to find existing trigger do not use this state to change triggers names. 
-It's important to avoid multiple trigger creation with same parameters but different names.  Triggers can be renamed by re-creation. 
+It's important to avoid multiple trigger creation with same parameters but different names. Triggers can be renamed by re-creation. 
 
 # Delete triggers
 To delete existing triggers use state 'absent':
@@ -70,4 +70,4 @@ As in web application, you're also free to use advanced parameters like:
        ? Wed
      ...
 ```
-specified as set elements in common yaml syntax.
+specified as elements of a set in common yaml syntax.
