@@ -12,7 +12,7 @@ short_description: Working with large number of triggers in Moira
 description:
     - Create new triggers
     - Edit existing triggers parameters
-    - Delete targets from triggers and triggers with no targets
+    - Delete triggers
 version_added:
     - 2.3.0.0
 author:
@@ -21,244 +21,286 @@ requirements:
     - 'python >= 2.6'
     - 'moira-client >= 0.4'
 options:
-  moira-server:
+  moira:
     description:
-      - Url of Moira API
+      - Url of Moira API.
+    type: 'str'
     required: True
-  branch:
+  state:
     description:
-      - Dictionary with parameters to use as common trigger template. Keys can be any. Subkeysto be used are:name, targets, desc, warn_value, error_value, tags, ttl_state.
-      - Use ';' to separate objects in tags and targets values.
-      - Do not use same keys in both branch and leaves sections. Use leaves section to differentiate triggers.
+      - Desired state of a trigger.
+      - Use state 'present' to create and edit existsing triggers and state 'absent' to delete triggers.
+    type: 'str'
+    required: True
+    choices: ['present', 'absent']
+  name:
+    description:
+      - Trigger name.
+    type: 'str'
+    required: True
+  desc:
+    description:
+      - Trigger description.
+    type: 'str'
     required: False
-  leaves:
+  ttl:
     description:
-      - Dictionary with parameters to complement common trigger template.
-      - For n leaves, in Moira there will be created n triggers. With jinja filters, n different groups of triggers can be created.
+      - Time To Live.
+    type: 'str'
     required: False
-  fall:
+    default: '600'
+  ttl_state:
     description:
-      - Dictionary with metric targets as values. Keys can be any.
-      - Function searches for trigger, related to specified target and removes target from trigger. Trigger will be also deleted if no targets found after first operation.
+      - Trigger state at the expiration of TTL.
+    type: 'str'
     required: False
-  gardening:
+    default: 'NODATA'
+    choices: ['NODATA', 'ERROR', 'WARN', 'OK']
+  expression:
     description:
-      - change:Dictionary with existing tagname as key and tagname you want to change as key value.
-      - cleanup:Boolean(Key presence). Removes every tagname if its not assigned to at least one trigger.
+      - Python expression.
+    type: 'str'
+    required: False
+  disabled_days:
+    description:
+      - Days for trigger to be in silent mode.
+    type: 'dict'
+    required: False
+  targets:
+    description:
+      - List of trigger targets.
+    type: 'list'
+    required: True
+  tags:
+    description:
+      - List of trigger tags.
+    type: 'list'
+    required: False
+  warn_value:
+    description:
+      - Value to set WARN status.
+    type: 'int'
+    required: False
+  error_value:
+    description:
+      - Value to set ERROR status.
+    type: 'int'
     required: False
 '''
 
 EXAMPLES = '''
-- name: Moira
+- name: MoiraAnsible
   moira_trigger:
-
-     moira-server: http://localhost/api/
-
-     branch:
-       desc: all triggers test description
-       warn_value: 300
-       error_value: 600
-       tags: first_tag; second_tag
-       ttl_state: ERROR
-
-     leaves:
-       leaf_0:
-         name: trigger_00
-         targets: target_00.rps
-       leaf_1:
-         name: trigger_01
-         targets: target_10.rps; target_11.rps
-       leaf_2:
-         name: trigger_02
-         targets: target_20.rps; target_21.rps; target_22.rps
-
-     fall:
-       target_0: target_30.rps
-       target_1: target_31.rps
-
-     gardening:
-       change:
-         third_tag: second_tag
-       cleanup: True
+     moira: http://localhost/api/
+     state: present
+     name: '{{ item.name }}'
+     desc: trigger test description
+     warn_value: 300
+     error_value: 600
+     ttl_state: ERROR
+     tags:
+       - first_tag
+       - second_tag
+     targets: '{{ item.targets }}'
+     disabled_days:
+       ? Mon
+       ? Wed
+     with_items:
+       - name: test1
+         targets:
+           - test1.rps
+           - test2.rps
+       - name: test2
+         targets:
+           - test3.rps
+           - test4.rps
 '''
 
 RETURN = '''
 results:
-  description: Results of module execution inside ansible playbook
-  returned: always
-  type: complex
-  sample: {'msg': {'already_exist': {'1': [{'ttl_state': 'ERROR', 'warn_value': 300, 'targets': ['target_20.rps', 'target_21.rps', 'target_22.rps'],
-  'name': 'trigger_02', 'tags': ['first_tag', 'second_tag'], 'error_value': 600, 'desc': 'all triggers test description'}]}, 'tags_changed': {'third_tag': 'second_tag'},
-  'triggers_removed': {'2': ['trigger_00', 'trigger_00']}, 'tags_removed': {'1': ['fourth_tag']}, 'triggers_saved': '100% of triggers has been saved successfully',
-  'targets_removed': {'2': ['target_00.rps', 'target_10.rps']}}}
-  contains:
-    triggers_saved:
-      description: Dictionary with successfuly saved triggers
-      returned: always
-      type: dict
-      sample: {'triggers_saved': '100% of triggers has been saved successfully'}
-    already_exist:
-      description: Dictionary with triggers that already exists
-      returned: always
-      type: dict
-      sample: {'already_exist': {'1': [{'desc': 'all triggers test description', 'error_value':600, 'name': 'trigger_02', 'tags': ['first_tag', 'second_tag'],
-      'targets': ['target_20.rps', 'target_21.rps', 'target_22.rps'], 'ttl_state': 'ERROR', 'warn_value': 300}]}}
-    targets_removed:
-      description: Dictionary with removed targets
-      returned: always
-      type: dict
-      sample: {'targets_removed': {'2': ['target_00.rps', 'target_10.rps']}}
-    triggers_removed:
-      description: Dictionary with removed triggers
-      returned: always
-      type: dict
-      sample: {'triggers_removed': {'2': ['trigger_00', 'trigger_00']}}
-    tags_removed:
-      description: Dictionary with removed tags
-      returned: always
-      type: dict
-      sample: {'tags_removed': {'1': ['fourth_tag']}}
-    tags_changed:
-      description: Dictionary with changed tags
-      returned: always
-      type: dict
-      sample: {'tags_changed': {'third_tag': 'second_tag'}}
+  description: Current state of trigger
+  returned: success
+  type: dictionary
+  sample: {
+  'test2': {
+            'trigger changed': {
+                'desc': 'trigger test description',
+                'disabled_days': {
+                    'Mon': null,
+                    'Tue': null
+                },
+                'error_value': 500,
+                'expression': null,
+                'name': 'test2',
+                'tags': [
+                    'first_tag',
+                    'second_tag'
+                ],
+                'targets': [
+                    'test30.rps',
+                    'test40.rps'
+                ],
+                'ttl': '600',
+                'ttl_state': 'ERROR',
+                'warn_value': 300
+            }
+        }
+    }
 '''
 
 from moira_client import Moira
 from ansible.module_utils.basic import AnsibleModule
 
-class PropertiesHandler():
+class MoiraAnsible():
 
-    def __init__(self, result = {}):
+    def __init__(self, results = {}, failed = {}):
 
-        self.result = result
+        self.results = results
+
+        self.failed = failed
+
+    def api_check(self):
+
+        components = {'pattern', 'tag', 'trigger'}
+
+        api_fails = {}
+
+        for component in components:
+            try:
+                moira.trigger.trigger_client.get('/'+component)
+            except:
+                api_fails.update({component: 'request failed'})
+
+        if api_fails:
+            self.failed['Unable to connect to Moira API'] = api_fails
+
+        return bool(not(api_fails))
 
     def tag_cleanup(self):
-
-        tags_removed = []
 
         for tag in moira.tag.stats():
             if not tag.triggers:
                 moira.tag.delete(tag.name)
-                tags_removed.append(str(tag.name))
 
-        self.result['tags_removed'] = {len(tags_removed): tags_removed}
+    def get_trigger_id(self, trigger):
 
-    def tag_change(self, previous_tag, new_tag):
-
-        for tag in moira.tag.stats():
-            if tag.name == previous_tag:
-                for every_trigger in tag.triggers:
-                    trigger = moira.trigger.fetch_by_id(every_trigger.id)
-                    trigger.tags.append(new_tag)
-                    trigger.tags.remove(previous_tag)
-                    trigger.update()
-
-        self.result['tags_changed'] = {previous_tag: new_tag}
-
-class TriggerHandler():
-
-    def __init__(self, bodies = {}, failed = {}, result = {}):
-
-        self.bodies = bodies
-        self.failed = failed
-        self.result = result
-
-    def triggers_construct(self, trigger_template, trigger_body):
-
-        to_modify = ['targets', 'tags']
-        trigger_body_keys = list(trigger_body.keys())
-        for i in range(len(trigger_body_keys)):
-            instance = trigger_body_keys[i]
-            self.bodies[instance] = {}
-            self.bodies[instance].update(trigger_template)
-            self.bodies[instance].update(trigger_body[instance])
-            for j in to_modify:
-                if j in self.bodies[instance].keys():
-                    self.bodies[instance][j] = self.bodies[instance][j].replace(' ','').split(';')
-
-    def triggers_save(self):
-
-        exists = []
-
-        for instance in self.bodies.keys():
-            trigger_body = self.bodies[instance]
-            trigger = moira.trigger.create(**trigger_body)
-            if moira.trigger.is_exist(trigger):
-                exists.append(trigger_body)
-            else:
-                try:
-                    trigger.save()
-                except Exception as error_body:
-                    self.failed[trigger_body['name']] = {}
-                    self.failed[trigger_body['name']].update(trigger_body)
-                    self.failed[trigger_body['name']].update({'why_failed': error_body})
-
-        if not(self.failed):
-            self.result['triggers_saved'] = '100% of triggers has been saved successfully'
-        else:
-            self.result['triggers_saved'] = (str(round(100*(len(self.failed)/len(self.bodies)))) + '% of triggers has been failed to save: \n' + str(self.failed))
-
-        self.result['already_exist'] = {len(exists): exists}
-
-    def targets_remove(self, trigger_targets):
-
-        targets_removed = []
-        triggers_removed = []
+        trigger_id = None
 
         all_triggers = moira.trigger.fetch_all()
 
-        for target in trigger_targets.values():
-            for trigger in all_triggers:
-                if target in trigger.targets:
-                    trigger.targets.remove(target)
-                    targets_removed.append(str(target))
-                if not(trigger.targets):
-                    moira.trigger.delete(trigger.id)
-                    triggers_removed.append(str(trigger.name))
-                else:
-                    trigger.update()
+        for moira_trigger in all_triggers:
+            if moira_trigger.name == trigger['name']:
+                trigger_id = moira_trigger.id
 
-        self.result['targets_removed'] = {len(targets_removed): targets_removed}
-        self.result['triggers_removed'] = {len(triggers_removed): triggers_removed}
+        return trigger_id
+
+    def parameters_change(self, moira_trigger, trigger):
+
+        parameters_to_change = {}
+
+        for parameter in trigger:
+            if not(moira_trigger.__dict__[parameter] == trigger[parameter]):
+                moira_trigger.__dict__[parameter] = trigger[parameter]
+
+        moira_trigger.update()
+
+    def triggers(self, trigger, state):
+
+        current_id = self.get_trigger_id(trigger)
+
+        if state == 'absent':
+            if current_id:
+                moira.trigger.delete(current_id)
+                self.results[trigger['name']] = {'trigger removed': current_id}
+            else:
+                self.results.update({trigger['name']: 'no id found for trigger'})
+
+        elif state == 'present':
+            if current_id:
+                moira_trigger = moira.trigger.fetch_by_id(current_id)
+                self.parameters_change(moira_trigger, trigger)
+                self.results[trigger['name']] = {'trigger changed': trigger}
+            else:
+                new_trigger = moira.trigger.create(**trigger)
+                new_trigger.save()
+                self.parameters_change(new_trigger, trigger)
+                self.results[trigger['name']] = {'new trigger created': trigger}
 
 def main():
 
     fields = {
-        'moira-server': {'type': 'str', 'required': True},
-        'branch': {'type': 'dict', 'required': False},
-        'leaves': {'type': 'dict', 'required': False},
-        'fall': {'type': 'dict', 'required': False},
-        'gardening': {'type': 'dict', 'required': False}
+        'moira': {
+            'type': 'str',
+            'required': True
+            },
+        'state': {
+            'type': 'str',
+            'required': True,
+            'choices': ['present', 'absent']
+            },
+        'name': {
+            'type': 'str',
+            'required': True
+            },
+        'desc': {
+            'type': 'str',
+            'required': False
+            },
+        'ttl': {
+            'type': 'str',
+            'required': False,
+            'default': '600'
+            },
+        'ttl_state': {
+            'type': 'str',
+            'required': False,
+            'default': 'NODATA',
+            'choices': ['NODATA', 'ERROR', 'WARN', 'OK']
+            },
+        'expression': {
+            'type': 'str',
+            'required': False
+            },
+        'disabled_days': {
+            'type': 'dict',
+            'required': False
+            },
+        'targets': {
+            'type': 'list',
+            'required': True
+            },
+        'tags': {
+            'type': 'list',
+            'required': False
+            },
+        'warn_value': {
+            'type': 'int',
+            'required': False
+            },
+        'error_value': {
+            'type': 'int',
+            'required': False
+            }
         }
 
     module = AnsibleModule(argument_spec=fields)
     global moira
-    moira = Moira(module.params['moira-server'])
-    trigger_handler = TriggerHandler()
-    properties_handler = PropertiesHandler()
+    moira = Moira(module.params['moira'])
+    moira_ansible = MoiraAnsible()
 
-    if module.params['branch']:
-        if module.params['leaves']:
-            trigger_handler.triggers_construct(module.params['branch'], module.params['leaves'])
-            trigger_handler.triggers_save()
-        else:
-            module.fail_json(msg='At least one leaf must be specified')
+    if not moira_ansible.api_check():
+        module.fail_json(msg=moira_ansible.failed)
 
-    if module.params['fall']:
-        trigger_handler.targets_remove(module.params['fall'])
+    trigger = {}
+    trigger_parameters = {'name', 'desc', 'ttl', 'ttl_state', 'expression', 'targets', 'tags', 'disabled_days', 'warn_value', 'error_value'}
 
-    if module.params['gardening']:
-        if 'change' in module.params['gardening']:
-            for previous_tag in module.params['gardening']['change'].keys():
-                properties_handler.tag_change(previous_tag, module.params['gardening']['change'][previous_tag])
-        if 'cleanup' in module.params['gardening']:
-            properties_handler.tag_cleanup()
+    for parameter in module.params:
+        if parameter in trigger_parameters:
+            trigger.update({parameter: module.params[parameter]})
 
-    results = trigger_handler.result.copy()
-    results.update(properties_handler.result)
-    module.exit_json(msg=results)
+    moira_ansible.triggers(trigger, module.params['state'])
+    moira_ansible.tag_cleanup()
+    module.exit_json(msg=moira_ansible.results)
 
 if __name__ == '__main__':
     main()
