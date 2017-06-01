@@ -5,10 +5,10 @@ Ansible module to create, update and delete Moira triggers based on [python-moir
 To create or edit existing trigger in Moira use state 'present' inside playbook task.
 Parameters values required to be specified:
 
- - moira: Url of Moira API;
- - state: Desired state of a trigger;
- - name: Trigger name;
- - targets: List of trigger targets.
+ - moira: Url of Moira API
+ - state: Desired state of a trigger
+ - name: Trigger name
+ - targets: List of trigger targets
  
 Any others will be used with their default values.
 ```
@@ -43,10 +43,10 @@ It's important to avoid multiple trigger creation with same parameters but diffe
 To delete existing triggers use state 'absent':
 ```
  - name: MoiraAnsible
-     moira_trigger:
-        ...
-        state: absent
-        ...  
+   moira_trigger:
+      ...
+      state: absent
+      ...  
 ```
 # Advanced parameters
 As in web application, you're also free to use advanced parameters like:
@@ -54,20 +54,20 @@ As in web application, you're also free to use advanced parameters like:
  - Python expressions:
 ```
  - name: MoiraAnsible
-     moira_trigger:
-        ...
-        expression: ERROR if t1 > 10 else WARN if t1 > 1 else OK
-        ...
+   moira_trigger:
+      ...
+      expression: ERROR if t1 > 10 else WARN if t1 > 1 else OK
+      ...
 ```
 
  -  and days for trigger to be in silent mode:
 ```
  - name: MoiraAnsible
-     moira_trigger:
-     ...
-     disabled_days:
-       ? Mon
-       ? Wed
-     ...
+   moira_trigger:
+      ...
+      disabled_days:
+        ? Mon
+        ? Wed
+      ...
 ```
 specified as elements of a set in common yaml syntax.
