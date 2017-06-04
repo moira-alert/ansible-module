@@ -135,34 +135,10 @@ EXAMPLES = '''
 
 RETURN = '''
 results:
-  description: Current state of trigger
+  description: Dictionary with current trigger state and id
   returned: success
-  type: dictionary
-  sample: {
-  'test2': {
-            'trigger changed': {
-                'desc': 'trigger test description',
-                'disabled_days': {
-                    'Mon': null,
-                    'Tue': null
-                },
-                'error_value': 500,
-                'expression': null,
-                'name': 'test2',
-                'tags': [
-                    'first_tag',
-                    'second_tag'
-                ],
-                'targets': [
-                    'test30.rps',
-                    'test40.rps'
-                ],
-                'ttl': '600',
-                'ttl_state': 'ERROR',
-                'warn_value': 300
-            }
-        }
-    }
+  type: dict
+  sample: {'test2': {'new trigger created': 'faf5cc42-6199-4f98-ab1f-5047409e0d2f'}}
 '''
 
 from moira_client import Moira
@@ -228,19 +204,17 @@ class MoiraAnsible():
             if current_id:
                 moira.trigger.delete(current_id)
                 self.results[trigger['name']] = {'trigger removed': current_id}
-            else:
-                self.results.update({trigger['name']: 'no id found for trigger'})
 
         elif state == 'present':
             if current_id:
                 moira_trigger = moira.trigger.fetch_by_id(current_id)
                 self.parameters_change(moira_trigger, trigger)
-                self.results[trigger['name']] = {'trigger changed': trigger}
+                self.results[trigger['name']] = {'trigger changed': current_id}
             else:
                 new_trigger = moira.trigger.create(**trigger)
                 new_trigger.save()
                 self.parameters_change(new_trigger, trigger)
-                self.results[trigger['name']] = {'new trigger created': trigger}
+                self.results[trigger['name']] = {'new trigger created': new_trigger.id}
 
 def main():
 
@@ -303,13 +277,13 @@ def main():
     global moira
     moira = Moira(module.params['moira'])
     moira_ansible = MoiraAnsible()
-
-    if not moira_ansible.api_check():
-        module.fail_json(msg=moira_ansible.failed)
-
+    
     trigger = {}
     trigger_parameters = {'name', 'desc', 'ttl', 'ttl_state', 'expression',
                           'targets', 'tags', 'disabled_days', 'warn_value', 'error_value'}
+
+    if not moira_ansible.api_check():
+        module.fail_json(msg=moira_ansible.failed)
 
     for parameter in module.params:
         if parameter in trigger_parameters:
@@ -317,7 +291,11 @@ def main():
 
     moira_ansible.triggers(trigger, module.params['state'])
     moira_ansible.tag_cleanup()
-    module.exit_json(msg=moira_ansible.results)
+
+    if trigger['name'] in moira_ansible.results:
+        module.exit_json(changed=True, result=moira_ansible.results)
+    else:
+        module.exit_json(changed=False, result={trigger['name']: 'no id found for trigger'})
 
 if __name__ == '__main__':
     main()
