@@ -201,20 +201,23 @@ class MoiraAnsible():
         current_id = self.get_trigger_id(trigger)
 
         if state == 'absent':
+            
             if current_id:
                 moira.trigger.delete(current_id)
                 self.results[trigger['name']] = {'trigger removed': current_id}
 
         elif state == 'present':
+            
             if current_id:
                 moira_trigger = moira.trigger.fetch_by_id(current_id)
-                self.parameters_change(moira_trigger, trigger)
                 self.results[trigger['name']] = {'trigger changed': current_id}
+                
             else:
-                new_trigger = moira.trigger.create(**trigger)
-                new_trigger.save()
-                self.parameters_change(new_trigger, trigger)
-                self.results[trigger['name']] = {'new trigger created': new_trigger.id}
+                moira_trigger = moira.trigger.create(**trigger)
+                moira_trigger.save()
+                self.results[trigger['name']] = {'new trigger created': moira_trigger.id}
+                
+            self.parameters_change(moira_trigger, trigger)
 
 def main():
 
