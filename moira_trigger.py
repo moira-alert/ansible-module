@@ -38,11 +38,26 @@ requirements:
     - 'python >= 2.6'
     - 'moira-client >= 0.4'
 options:
-  moira:
+  api_url:
     description:
       - Url of Moira API.
     type: 'str'
     required: True
+  login:
+    description:
+      - Auth Login.
+    type: 'str'
+    required: False
+  auth_user:
+    description:
+      - Auth User.
+    type: 'str'
+    required: False
+  auth_pass:
+    description:
+      - Auth Password.
+    type: 'str'
+    required: False
   state:
     description:
       - Desired state of a trigger.
@@ -108,7 +123,7 @@ options:
 EXAMPLES = '''
 - name: MoiraAnsible
   moira_trigger:
-     moira: http://localhost/api/
+     api_url: http://localhost/api/
      state: present
      name: '{{ item.name }}'
      desc: trigger test description
@@ -136,7 +151,7 @@ EXAMPLES = '''
 RETURN = '''
 results:
   description: Dictionary with current trigger state and id
-  returned: success
+  returned: changed
   type: dict
   sample: {'test2': {'new trigger created': 'faf5cc42-6199-4f98-ab1f-5047409e0d2f'}}
 '''
@@ -222,9 +237,22 @@ class MoiraAnsible():
 def main():
 
     fields = {
-        'moira': {
+        'api_url': {
             'type': 'str',
             'required': True
+            },
+        'login': {
+            'type': 'str',
+            'required': False
+            },
+        'auth_user': {
+            'type': 'str',
+            'required': False
+            },
+        'auth_pass': {
+            'type': 'str',
+            'required': False,
+            'no_log': True
             },
         'state': {
             'type': 'str',
@@ -277,20 +305,26 @@ def main():
         }
 
     module = AnsibleModule(argument_spec=fields)
-    global moira
-    moira = Moira(module.params['moira'])
-    moira_ansible = MoiraAnsible()
-    
+
+    api = {}
+    api_parameters = {'api_url', 'login', 'auth_user', 'auth_pass'}
+ 
     trigger = {}
     trigger_parameters = {'name', 'desc', 'ttl', 'ttl_state', 'expression',
                           'targets', 'tags', 'disabled_days', 'warn_value', 'error_value'}
 
+    for parameter in module.params:
+        if parameter in api_parameters:
+            api.update({parameter: module.params[parameter]})
+        elif parameter in trigger_parameters:
+            trigger.update({parameter: module.params[parameter]})
+
+    global moira
+    moira = Moira(**api)
+    moira_ansible = MoiraAnsible()
+
     if not moira_ansible.api_check():
         module.fail_json(msg=moira_ansible.failed)
-
-    for parameter in module.params:
-        if parameter in trigger_parameters:
-            trigger.update({parameter: module.params[parameter]})
 
     moira_ansible.triggers(trigger, module.params['state'])
     moira_ansible.tag_cleanup()
