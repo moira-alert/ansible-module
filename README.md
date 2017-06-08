@@ -5,7 +5,7 @@ Ansible module to create, update and delete Moira triggers based on [python-moir
 To create or edit existing trigger in Moira use state 'present' inside playbook task.
 Parameters values required to be specified:
 
- - moira: Url of Moira API
+ - api_url: Url of Moira API
  - state: Desired state of a trigger
  - name: Trigger name
  - targets: List of trigger targets
@@ -14,7 +14,7 @@ Any others will be used with their default values.
 ```
    - name: MoiraAnsible
      moira_trigger:
-        moira: http://localhost/api/
+        api_url: http://localhost/api/
         state: present
         name: '{{ item.name }}'
         desc: trigger test description
