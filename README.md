@@ -71,3 +71,13 @@ As in web application, you're also free to use advanced parameters like:
       ...
 ```
 specified as elements of a set in common yaml syntax.
+
+# Dynamic parameters
+Following paramaters are easily removeable:
+
+ - desc: Trigger description
+ - disabled_days: Days for trigger to be in silent mode
+ - tags: List of trigger tags
+ - expression: Python expression
+ 
+ To remove any of the described parameters from existing trigger you can simply remove related key from your playbook.
