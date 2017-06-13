@@ -501,14 +501,9 @@ def main():
 
     moira_ansible.tag_cleanup()
 
-    if not moira_ansible.failed and moira_ansible.changed:
+    if not moira_ansible.failed:
         module.exit_json(
-            changed=True, result=moira_ansible.success,
-            warnings=moira_ansible.warnings
-            )
-    elif not moira_ansible.failed:
-        module.exit_json(
-            changed=False, result=moira_ansible.success,
+            changed=moira_ansible.changed, result=moira_ansible.success,
             warnings=moira_ansible.warnings
             )
     else:
