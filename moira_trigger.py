@@ -68,7 +68,7 @@ options:
   state:
     description:
       - Desired state of a trigger.
-      - Use state 'present' to create and edit existsing triggers.
+      - Use state 'present' to create and edit existing triggers.
       - Use state 'absent' to delete triggers.
     type: 'str'
     required: True
