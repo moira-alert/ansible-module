@@ -148,4 +148,3 @@ To delete existing triggers use state 'absent':
               - test3.rps
               - test4.rps
 ```
-
