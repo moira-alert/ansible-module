@@ -60,7 +60,7 @@ See the difference between these two groups [here](#changing_existing_triggers).
 
 | Parameter | Description | Type | Required | Choices | Default | Example |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| api_url | Url of Moira API | String | True | | | http://localhost/api |
+| api_url | Url of Moira API | String | True | | | http://localhost/api/ |
 | login | Auth Login (for 'X-Webauth-User' header) | String | False | | None | admin |
 | auth_user | Auth User  (Basic Auth) | String | False | | None | admin |
 | auth_pass | Auth Password  (Basic Auth) | String | False | | None | pass|
