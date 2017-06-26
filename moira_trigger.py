@@ -68,7 +68,7 @@ options:
   state:
     description:
       - Desired state of a trigger.
-      - Use state 'present' to create and edit existsing triggers.
+      - Use state 'present' to create and edit existing triggers.
       - Use state 'absent' to delete triggers.
     type: 'str'
     required: True
@@ -262,16 +262,21 @@ class MoiraAnsible(object):
 
         '''
 
-        for tag in self.moira_api.tag.stats():
-            if not tag.triggers:
-                try:
-                    self.moira_api.tag.delete(tag.name)
-                except Exception as tag_cleanup_exception:
-                    self.warnings.append(
-                        'Unable to remove unused tags: ' +
-                        tag_cleanup_exception.__class__.__name__ +
-                        ' Tags can be removed on next module execution'
-                        )
+        unused = set()
+
+        not_removed = 'Unable to remove unused tags. ' \
+                      'Tags can be removed on the next module execution'
+
+        try:
+            for tag in self.moira_api.tag.stats():
+                if not tag.triggers:
+                    unused.add(self.moira_api.tag.delete(tag.name))
+            assert bool(0) not in unused
+        except Exception as tag_cleanup_exception:
+            self.warnings.append(
+                tag_cleanup_exception.__class__.__name__ +
+                ': ' + not_removed
+                )
 
     def get_trigger_id(self, trigger):
 
