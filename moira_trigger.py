@@ -251,10 +251,10 @@ class MoiraAnsible(object):
                 self.moira_api.trigger.trigger_client.get(component)
             except Exception as api_check_exception:
                 self.exception_handler(
-                    api_check_exception, component, 'api_availbility'
+                    api_check_exception, component, 'api_availability'
                     )
 
-        return bool('api_availbility' not in self.failed)
+        return bool('api_availability' not in self.failed)
 
     def tag_cleanup(self):
 
