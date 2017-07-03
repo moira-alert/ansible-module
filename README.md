@@ -138,13 +138,16 @@ To delete existing triggers use state 'absent':
           - first_tag
           - second_tag
         targets: '{{ item.targets }}'
-        with_items:
-          - name: test1
-            targets:
-              - test1.rps
-              - test2.rps
-          - name: test2
-            targets:
-              - test3.rps
-              - test4.rps
+        disabled_days:
+          ? Mon
+          ? Wed
+     with_items:
+       - name: test1
+         targets:
+           - test1.rps
+           - test2.rps
+       - name: test2
+         targets:
+           - test3.rps
+           - test4.rps
 ```
