@@ -154,15 +154,15 @@ EXAMPLES = '''
      disabled_days:
        ? Mon
        ? Wed
-     with_items:
-       - name: test1
-         targets:
-           - test1.rps
-           - test2.rps
-       - name: test2
-         targets:
-           - test3.rps
-           - test4.rps
+  with_items:
+    - name: test1
+      targets:
+        - test1.rps
+        - test2.rps
+    - name: test2
+      targets:
+        - test3.rps
+        - test4.rps
 '''
 
 RETURN = '''
