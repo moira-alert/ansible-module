@@ -18,7 +18,9 @@ Ansible module to create, update and delete Moira triggers based on [python-moir
 - [Changing existing triggers](#changing-existing-triggers)
 - [Deleting triggers](#deleting-triggers)
  
-[Playbook example](#playbook-example)
+[First run](#first-run)
+- [Check mode](#check-mode)
+- [Playbook example](#playbook-example)
 
 ## <a name="installation"></a> Installation
 
@@ -122,7 +124,18 @@ To delete existing triggers use state 'absent':
       ...  
 ```
 
-## <a name="playbook-example"></a> Playbook example
+## <a name="first-run"></a> First run
+
+### <a name="check-mode"></a> Check mode
+
+Module supports "Dry Runs".
+To check your playbook execute it with '--check':
+
+```
+ansible-playbook -vvvv moira_triggers.yml --check
+```
+
+### <a name="playbook-example"></a> Playbook example
 
 ```
    - name: MoiraAnsible
