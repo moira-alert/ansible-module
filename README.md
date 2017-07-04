@@ -1,6 +1,7 @@
 # ansible-module
 
-Ansible module to create, update and delete Moira triggers based on [python-moira-client](https://github.com/moira-alert/python-moira-client)
+Ansible module to create, update and delete Moira triggers based on 
+[python-moira-client](https://github.com/moira-alert/python-moira-client)
 
 ## User Guide
 
@@ -26,14 +27,16 @@ Ansible module to create, update and delete Moira triggers based on [python-moir
 
 ### <a name="python-moira-client"></a> Python Moira client
 
-Make sure you have [python-moira-client](https://github.com/moira-alert/python-moira-client) installed:
+Make sure you have 
+[python-moira-client](https://github.com/moira-alert/python-moira-client) installed:
 
 ```
 pip install moira-client
 ```
 
 ### <a name="moira-trigger-module"></a> Moira Trigger module
-Clone ansible-module project inside your Ansible library directory specified in [ansible.cfg](http://docs.ansible.com/ansible/intro_configuration.html#library) file:
+Clone ansible-module project inside your Ansible library directory specified in 
+[ansible.cfg](http://docs.ansible.com/ansible/intro_configuration.html#library) file:
 
 ```
 cd /path/to/library
@@ -55,7 +58,7 @@ The parameters listed below are required to be specified for every task:
 
 Any others can be used with their default values.
 
-> **Note:** Both static and dynamic parameters can be specified for every trigger. 
+> **Note:** Both static and dynamic parameters can be specified for every trigger. <br>
 > See the difference between these two groups [here](#changing_existing_triggers).
 
 ### <a name="static-parameters"></a> Static parameters
@@ -96,21 +99,26 @@ Use state 'present' to create and edit existing triggers:
       ...  
 ```
 
-> **Note:** See [required parameters](#required_parameters) section and [playbook example](#playbook_example) for more information.
+> **Note:** See [required parameters](#required_parameters) section 
+> and [playbook example](#playbook_example) for more information.
 
 ### <a name="changing-existing-triggers"></a> Changing existing triggers
 
-To remove any of the dynamic parameters from the existing trigger you can simply remove the related key from your playbook.
+To remove any of the dynamic parameters from the existing trigger
+you can simply remove the related key <br> from your playbook.
 
-The table below shows which value be assigned to a parameter if the related key isn't specified within a playbook. 
+The table below shows which value be assigned to a parameter
+if the related key isn't specified within a playbook. 
 
 | Parameter | Value to be assigned |
 | ------ | ------ |
 | Static | Last used value |
 | Dynamic | Default value |
 
-> **Note:** Since its name required to find existing trigger do not use state 'present' to change triggers names.
-> It's important to avoid multiple trigger creation with same parameters but different names. Triggers can be renamed by re-creation.
+> **Note:** Since its name required to find existing trigger 
+> do not use state 'present' to change triggers names.
+> It's important to avoid multiple trigger creation with same parameters 
+> but different names. Triggers can be renamed by re-creation.
 
 ### <a name="deleting-triggers"></a> Deleting triggers
 
@@ -128,7 +136,8 @@ To delete existing triggers use state 'absent':
 
 ### <a name="check-mode"></a> Check mode
 
-To see how module works without making any changes execute ansible-playbook with the following flags:
+To see how module works without making any changes 
+execute ansible-playbook with the following flags:
 
 ```
 ansible-playbook -vvvv moira_triggers.yml --check
