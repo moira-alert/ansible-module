@@ -39,7 +39,7 @@ version_added:
 author:
     - SKB Kontur
 requirements:
-    - 'python >= 2.6'
+    - 'python >= 2.7'
     - 'moira-client >= 0.4'
 options:
   api_url:
@@ -193,6 +193,7 @@ class MoiraAnsible(object):
     Attributes:
         moira_api (class): moira api client.
         changed (bool): actual trigger state.
+        dry_run (bool): enables check mode.
         failed (dict): error message (if occurred).
         success (dict): trigger state and id.
         warnings (list): module warnings.
@@ -224,10 +225,10 @@ class MoiraAnsible(object):
         '''Handling occurred exceptions.
 
         Args:
-            level (str): level of importance ('warn' or 'error').
             occurred (class): exception.
             component (str): component name.
             desc (str): description.
+            level (str): level of importance ('warn' or 'error').
 
         '''
 
@@ -268,7 +269,7 @@ class MoiraAnsible(object):
 
         '''
 
-        desc = 'Api Availability Check'
+        desc = 'API Unavailable'
         components = {'pattern', 'tag', 'trigger'}
 
         for component in components:
@@ -322,9 +323,9 @@ class MoiraAnsible(object):
 
         try:
             all_triggers = self.moira_api.trigger.fetch_all()
-        except Exception as fetch_all_exception:
+        except Exception as get_trigger_id_exception:
             self.exception_handler(
-                occurred=fetch_all_exception,
+                occurred=get_trigger_id_exception,
                 component='Get Trigger ID (trigger.fetch_all)'
                 )
             return
@@ -395,6 +396,7 @@ class MoiraAnsible(object):
             self.changed = True
 
         if trigger_name not in self.success:
+
             self.success[trigger_name] = {
                 'trigger changed': moira_trigger.id
                 }
@@ -421,10 +423,9 @@ class MoiraAnsible(object):
 
                 try:
                     self.moira_api.trigger.delete(trigger_id)
-
-                except Exception as trigger_delete_exception:
+                except Exception as trigger_remove_exception:
                     self.exception_handler(
-                        occurred=trigger_delete_exception,
+                        occurred=trigger_remove_exception,
                         component='Remove Trigger (trigger.delete)'
                         )
                     return
@@ -448,9 +449,9 @@ class MoiraAnsible(object):
 
             try:
                 moira_trigger = self.moira_api.trigger.fetch_by_id(trigger_id)
-            except Exception as fetch_by_id_exception:
+            except Exception as trigger_edit_exception:
                 self.exception_handler(
-                    occurred=fetch_by_id_exception,
+                    occurred=trigger_edit_exception,
                     component='Trigger Edit (trigger.fetch_by_id)'
                     )
                 return
@@ -463,9 +464,9 @@ class MoiraAnsible(object):
 
                 try:
                     moira_trigger.save()
-                except Exception as trigger_update_exception:
+                except Exception as trigger_save_exception:
                     self.exception_handler(
-                        occurred=trigger_update_exception,
+                        occurred=trigger_save_exception,
                         component='Trigger Edit (trigger.save)'
                         )
                     return
@@ -474,7 +475,7 @@ class MoiraAnsible(object):
 
             else:
 
-                moira_trigger_id = 'ghost'
+                moira_trigger_id = 'gh0st'
 
             self.changed = True
             self.success[trigger['name']] = {
