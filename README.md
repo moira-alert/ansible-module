@@ -128,7 +128,7 @@ To delete existing triggers use state 'absent':
 
 ### <a name="check-mode"></a> Check mode
 
-Module supports "Dry Runs".
+Module supports "Dry Runs". <br>
 To see how module works without making any changes execute ansible-playbook with the following flags:
 
 ```
