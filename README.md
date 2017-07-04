@@ -129,7 +129,7 @@ To delete existing triggers use state 'absent':
 ### <a name="check-mode"></a> Check mode
 
 Module supports "Dry Runs".
-To check your playbook execute it with '--check':
+To check your playbook execute it with the following flags:
 
 ```
 ansible-playbook -vvvv moira_triggers.yml --check
