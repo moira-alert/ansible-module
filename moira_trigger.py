@@ -29,15 +29,13 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: moira_trigger
-short_description: Working with large number of triggers in Moira
+short_description: Working with large number of triggers in Moira.
 description:
-    - Create new triggers
-    - Edit existing triggers parameters
-    - Delete triggers
-version_added:
-    - 2.3.0.0
-author:
-    - SKB Kontur
+    - Create new triggers.
+    - Edit existing triggers parameters.
+    - Delete triggers.
+version_added: '2.4'
+author: 'SKB Kontur'
 requirements:
     - 'python >= 2.7'
     - 'moira-client >= 0.4'
@@ -45,24 +43,20 @@ options:
   api_url:
     description:
       - Url of Moira API.
-    type: 'str'
     required: True
   login:
     description:
       - Auth Login.
-    type: 'str'
     required: False
     default: None
   auth_user:
     description:
       - Auth User.
-    type: 'str'
     required: False
     default: None
   auth_pass:
     description:
       - Auth Password.
-    type: 'str'
     required: False
     default: None
   state:
@@ -70,70 +64,59 @@ options:
       - Desired state of a trigger.
       - Use state 'present' to create and edit existing triggers.
       - Use state 'absent' to delete triggers.
-    type: 'str'
     required: True
     choices: ['present', 'absent']
   name:
     description:
       - Trigger name.
-    type: 'str'
     required: True
   desc:
     description:
       - Trigger description.
-    type: 'str'
     required: False
     default: ''
   ttl:
     description:
       - Time To Live.
-    type: 'str'
     required: False
     default: '600'
   ttl_state:
     description:
       - Trigger state at the expiration of TTL.
-    type: 'str'
     required: False
     default: 'NODATA'
     choices: ['NODATA', 'ERROR', 'WARN', 'OK']
   expression:
     description:
       - Python expression.
-    type: 'str'
     required: False
     default: ''
   disabled_days:
     description:
       - Days for trigger to be in silent mode.
-    type: 'dict'
     required: False
     default: {}
   targets:
     description:
       - List of trigger targets.
-    type: 'list'
     required: True
   tags:
     description:
       - List of trigger tags.
-    type: 'list'
     required: False
     default: []
   warn_value:
     description:
       - Value to set WARN status.
-    type: 'int'
     required: False
     default: None
   error_value:
     description:
       - Value to set ERROR status.
-    type: 'int'
     required: False
     default: None
 notes:
-    - View https://github.com/moira-alert/ansible-module for more details.
+    - More details at https://github.com/moira-alert/ansible-module.
 '''
 
 EXAMPLES = '''
@@ -177,13 +160,13 @@ success:
   }
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-
 try:
     from moira_client import Moira
     HAS_MOIRA_CLIENT = True
 except ImportError:
     HAS_MOIRA_CLIENT = False
+
+from ansible.module_utils.basic import AnsibleModule
 
 
 class MoiraAnsible(object):
@@ -236,29 +219,24 @@ class MoiraAnsible(object):
 
             exception_body = {
                 'error': occurred.__class__.__name__,
-                'details': str(occurred)
-                }
+                'details': str(occurred)}
 
             if desc not in self.failed:
                 self.failed[desc] = {
-                    component: exception_body
-                    }
+                    component: exception_body}
 
             else:
                 self.failed[desc].update({
-                    component: exception_body
-                    })
+                    component: exception_body})
 
         elif level == 'warn':
 
             exception_body = (
                 component + ' warning: ' + desc +
-                ' Reason: ' + occurred.__class__.__name__
-                )
+                ' Reason: ' + occurred.__class__.__name__)
 
             self.warnings.append(
-                exception_body
-                )
+                exception_body)
 
     def api_check(self):
 
@@ -270,7 +248,7 @@ class MoiraAnsible(object):
         '''
 
         desc = 'API Unavailable'
-        components = {'pattern', 'tag', 'trigger'}
+        components = 'pattern', 'tag', 'trigger'
 
         for component in components:
 
@@ -280,8 +258,7 @@ class MoiraAnsible(object):
                 self.exception_handler(
                     occurred=api_check_exception,
                     component=component,
-                    desc=desc
-                    )
+                    desc=desc)
 
         return bool(desc not in self.failed)
 
@@ -300,14 +277,13 @@ class MoiraAnsible(object):
             for tag in self.moira_api.tag.stats():
                 if not tag.triggers:
                     unused.add(self.moira_api.tag.delete(tag.name))
-            assert bool(0) not in unused
+            assert False not in unused
         except Exception as tag_cleanup_exception:
             self.exception_handler(
                 occurred=tag_cleanup_exception,
                 component='Tag Cleanup (tag.stats)',
                 desc=not_removed,
-                level='warn'
-                )
+                level='warn')
 
     def get_trigger_id(self, trigger_name):
 
@@ -326,8 +302,7 @@ class MoiraAnsible(object):
         except Exception as get_trigger_id_exception:
             self.exception_handler(
                 occurred=get_trigger_id_exception,
-                component='Get Trigger ID (trigger.fetch_all)'
-                )
+                component='Get Trigger ID (trigger.fetch_all)')
             return
 
         for moira_trigger in all_triggers:
@@ -351,15 +326,12 @@ class MoiraAnsible(object):
                 not_updated.update({
                     parameter: {
                         'desired': trigger[parameter],
-                        'actual': moira_trigger.__dict__[parameter]
-                        }
-                    })
+                        'actual': moira_trigger.__dict__[parameter]}})
 
         if not_updated:
             self.failed['failed_to_update_trigger'] = {
                 'trigger': trigger['name'],
-                'parameters': not_updated
-                }
+                'parameters': not_updated}
         else:
             self.changed = True
 
@@ -386,8 +358,7 @@ class MoiraAnsible(object):
             except Exception as trigger_update_exception:
                 self.exception_handler(
                     occurred=trigger_update_exception,
-                    component='Trigger Update (trigger.update)'
-                    )
+                    component='Trigger Update (trigger.update)')
 
             self.trigger_update_check(moira_trigger, trigger)
 
@@ -398,8 +369,7 @@ class MoiraAnsible(object):
         if trigger_name not in self.success:
 
             self.success[trigger_name] = {
-                'trigger changed': moira_trigger.id
-                }
+                'trigger changed': moira_trigger.id}
 
     def trigger_remove(self, trigger_name, trigger_id):
 
@@ -414,8 +384,7 @@ class MoiraAnsible(object):
         if trigger_id is None:
 
             self.success.update({
-                trigger_name: 'no id found for trigger'
-                })
+                trigger_name: 'no id found for trigger'})
 
         else:
 
@@ -426,14 +395,12 @@ class MoiraAnsible(object):
                 except Exception as trigger_remove_exception:
                     self.exception_handler(
                         occurred=trigger_remove_exception,
-                        component='Remove Trigger (trigger.delete)'
-                        )
+                        component='Remove Trigger (trigger.delete)')
                     return
 
             self.changed = True
             self.success[trigger_name] = {
-                'trigger removed': trigger_id
-                }
+                'trigger removed': trigger_id}
 
     def trigger_edit(self, trigger, trigger_id):
 
@@ -452,8 +419,7 @@ class MoiraAnsible(object):
             except Exception as trigger_edit_exception:
                 self.exception_handler(
                     occurred=trigger_edit_exception,
-                    component='Trigger Edit (trigger.fetch_by_id)'
-                    )
+                    component='Trigger Edit (trigger.fetch_by_id)')
                 return
 
         else:
@@ -467,8 +433,7 @@ class MoiraAnsible(object):
                 except Exception as trigger_save_exception:
                     self.exception_handler(
                         occurred=trigger_save_exception,
-                        component='Trigger Edit (trigger.save)'
-                        )
+                        component='Trigger Edit (trigger.save)')
                     return
 
                 moira_trigger_id = moira_trigger.id
@@ -479,8 +444,7 @@ class MoiraAnsible(object):
 
             self.changed = True
             self.success[trigger['name']] = {
-                'new trigger created': moira_trigger_id
-                }
+                'new trigger created': moira_trigger_id}
 
         self.trigger_update(moira_trigger, trigger)
 
@@ -499,14 +463,12 @@ class MoiraAnsible(object):
         if state == 'absent':
             self.trigger_remove(
                 trigger_name=trigger['name'],
-                trigger_id=current_id
-                )
+                trigger_id=current_id)
 
         elif state == 'present':
             self.trigger_edit(
                 trigger=trigger,
-                trigger_id=current_id
-                )
+                trigger_id=current_id)
 
 
 def main():
@@ -518,99 +480,78 @@ def main():
     fields = {
         'api_url': {
             'type': 'str',
-            'required': True
-            },
+            'required': True},
         'login': {
             'type': 'str',
-            'required': False
-            },
+            'required': False},
         'auth_user': {
             'type': 'str',
-            'required': False
-            },
+            'required': False},
         'auth_pass': {
             'type': 'str',
             'required': False,
-            'no_log': True
-            },
+            'no_log': True},
         'state': {
             'type': 'str',
             'required': True,
-            'choices': ['present', 'absent']
-            },
+            'choices': ['present', 'absent']},
         'name': {
             'type': 'str',
-            'required': True
-            },
+            'required': True},
         'desc': {
             'type': 'str',
             'required': False,
-            'default': ''
-            },
+            'default': ''},
         'ttl': {
             'type': 'str',
-            'required': False
-            },
+            'required': False},
         'ttl_state': {
             'type': 'str',
             'required': False,
-            'choices': ['NODATA', 'ERROR', 'WARN', 'OK']
-            },
+            'choices': ['NODATA', 'ERROR', 'WARN', 'OK']},
         'expression': {
             'type': 'str',
             'required': False,
-            'default': ''
-            },
+            'default': ''},
         'disabled_days': {
             'type': 'dict',
             'required': False,
-            'default': {}
-            },
+            'default': {}},
         'targets': {
             'type': 'list',
-            'required': True
-            },
+            'required': True},
         'tags': {
             'type': 'list',
             'required': False,
-            'default': []
-            },
+            'default': []},
         'warn_value': {
             'type': 'int',
-            'required': False
-            },
+            'required': False},
         'error_value': {
             'type': 'int',
-            'required': False
-            }
-        }
+            'required': False}}
 
     module = AnsibleModule(
         argument_spec=fields,
-        supports_check_mode=True
-        )
+        supports_check_mode=True)
 
     missing_moira_client = 'Unable to import required module. ' \
                            'Make sure you have moira-client installed: ' \
                            'pip install moira-client'
 
     api = {}
-    api_parameters = {
-        'api_url', 'login', 'auth_user', 'auth_pass'
-        }
+    api_parameters = 'api_url', 'login', 'auth_user', 'auth_pass'
 
     for parameter in api_parameters:
         if module.params[parameter]:
             api.update({parameter: module.params[parameter]})
 
     trigger = {}
-    trigger_parameters_static = {
-        'name', 'ttl', 'ttl_state',
-        'targets', 'warn_value', 'error_value'
-        }
-    trigger_parameters_dynamic = {
-        'expression', 'disabled_days', 'desc', 'tags'
-        }
+    trigger_parameters_static = 'name', 'ttl', 'ttl_state', \
+                                'targets', 'warn_value', 'error_value'
+
+    trigger_parameters_dynamic = 'expression', 'disabled_days', \
+                                 'desc', 'tags'
 
     for parameter in trigger_parameters_static:
         if module.params[parameter]:
@@ -625,16 +566,14 @@ def main():
     moira_api = Moira(**api)
     moira_ansible = MoiraAnsible(
         moira_api=moira_api,
-        dry_run=module.check_mode
-        )
+        dry_run=module.check_mode)
 
     if not moira_ansible.api_check():
         module.fail_json(msg=moira_ansible.failed)
 
     moira_ansible.trigger_customize(
         trigger=trigger,
-        state=module.params['state']
-        )
+        state=module.params['state'])
 
     if not module.check_mode:
         moira_ansible.tag_cleanup()
@@ -643,13 +582,11 @@ def main():
         module.exit_json(
             changed=moira_ansible.changed,
             result=moira_ansible.success,
-            warnings=moira_ansible.warnings
-            )
+            warnings=moira_ansible.warnings)
     else:
         module.fail_json(
             msg=moira_ansible.failed,
-            warnings=moira_ansible.warnings
-            )
+            warnings=moira_ansible.warnings)
 
 
 if __name__ == '__main__':
