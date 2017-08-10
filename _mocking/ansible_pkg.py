@@ -20,4 +20,7 @@ class _Ansible(object):
                 self.AnsibleModule = AnsibleModule
 
 ansible = _Ansible()
+
+sys.modules['ansible'] = ansible
+sys.modules['ansible.module_utils'] = ansible.module_utils
 sys.modules['ansible.module_utils.basic'] = ansible.module_utils.basic
