@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/kamaev/ansible-module.svg?branch=master)](https://travis-ci.org/kamaev/ansible-module)
+[![Build Status](https://travis-ci.org/moira-alert/ansible-module.svg?branch=master)](https://travis-ci.org/moira-alert/ansible-module)
 
 # ansible-module
 
