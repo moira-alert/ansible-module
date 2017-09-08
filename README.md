@@ -68,7 +68,7 @@ Any others can be used with their default values.
 | Parameter | Description | Type | Required | Choices | Default | Example |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 | api_url | Url of Moira API | String | True | | | <http://localhost/api/> |
-| auth_custom | Custom authorization headers | Dictionary | False | | None | 'X-Webauth-User':'admin' |
+| auth_custom | Custom authorization headers | Dictionary | False | | None | 'X-Webauth-User': 'admin' |
 | auth_user | Auth User  (Basic Auth) | String | False | | None | admin |
 | auth_pass | Auth Password  (Basic Auth) | String | False | | None | pass |
 | state | Desired state of a trigger | String | True | present <br> absent |  | present |
