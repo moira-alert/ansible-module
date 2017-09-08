@@ -88,7 +88,7 @@ options:
     choices: ['NODATA', 'ERROR', 'WARN', 'OK']
   expression:
     description:
-      - Python expression.
+      - C# expression.
     required: False
     default: ''
   disabled_days:
