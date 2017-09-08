@@ -68,7 +68,7 @@ Any others can be used with their default values.
 | Parameter | Description | Type | Required | Choices | Default | Example |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 | api_url | Url of Moira API | String | True | | | <http://localhost/api/> |
-| login | Auth Login (for 'X-Webauth-User' header) | String | False | | None | admin |
+| auth_custom | Custom authorization headers | Dictionary | False | | None | 'X-Webauth-User':'admin' |
 | auth_user | Auth User  (Basic Auth) | String | False | | None | admin |
 | auth_pass | Auth Password  (Basic Auth) | String | False | | None | pass |
 | state | Desired state of a trigger | String | True | present <br> absent |  | present |
@@ -84,7 +84,7 @@ Any others can be used with their default values.
 | Parameter | Description | Type | Required |  Default | Example |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | desc | Trigger description | String | False | Empty String | trigger test description |
-| expression | Python expression | String | False | Empty String | ERROR if t1 > 10 else WARN if t1 > 1 else OK |
+| expression | C# expression | String | False | Empty String | 't1 >= 10 ? ERROR : (t1 >= 1 ? WARN : OK)' |
 | disabled_days | Days for trigger to be in silent mode | Set | False | {} | ? Mon <br> ? Wed |
 | tags | List of trigger tags | List | False | [] | - first_tag <br> - second_tag |
 
