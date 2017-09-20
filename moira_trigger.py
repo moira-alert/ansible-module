@@ -44,9 +44,9 @@ options:
     description:
       - Url of Moira API.
     required: True
-  auth_custom:
+  login:
     description:
-      - Auth custom headers.
+      - Auth Login.
     required: False
     default: None
   auth_user:
@@ -88,7 +88,7 @@ options:
     choices: ['NODATA', 'ERROR', 'WARN', 'OK']
   expression:
     description:
-      - C# expression.
+      - Python expression.
     required: False
     default: ''
   disabled_days:
@@ -481,8 +481,8 @@ def main():
         'api_url': {
             'type': 'str',
             'required': True},
-        'auth_custom': {
-            'type': 'dict',
+        'login': {
+            'type': 'str',
             'required': False},
         'auth_user': {
             'type': 'str',
@@ -540,7 +540,7 @@ def main():
                            'pip install moira-client'
 
     api = {}
-    api_parameters = 'api_url', 'auth_custom', 'auth_user', 'auth_pass'
+    api_parameters = 'api_url', 'login', 'auth_user', 'auth_pass'
 
     for parameter in api_parameters:
         if module.params[parameter]:
