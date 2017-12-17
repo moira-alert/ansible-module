@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/moira-alert/ansible-module.svg?branch=master)](https://travis-ci.org/moira-alert/ansible-module)
 
+# DEPRECATED, SEE https://github.com/moira-alert/moira-trigger-role
+
 # ansible-module
 
 Ansible module to create, update and delete Moira triggers based on
