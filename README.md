@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.org/moira-alert/ansible-module.svg?branch=master)](https://travis-ci.org/moira-alert/ansible-module)
 
+# THIS REPOSITORY MAY BE REMOVED WITHOUT FURTHER NOTICE AFTER 31 AUG 2018
+
+# THIS REPOSITORY IS NO LONGER MAINTAINED
+
 # DEPRECATED, SEE https://github.com/moira-alert/moira-trigger-role
 
 # ansible-module
